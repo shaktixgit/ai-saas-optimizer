@@ -60,8 +60,8 @@ if is_dark:
     table_head_bg = "rgba(255, 255, 255, 0.08)"
     table_row_alt = "rgba(255, 255, 255, 0.03)"
     table_border = "rgba(255, 255, 255, 0.1)"
-    uploader_btn_bg = "rgba(255, 255, 255, 0.12)"
-    uploader_btn_border = "rgba(255, 255, 255, 0.25)"
+    uploader_btn_bg = "rgba(255, 255, 255, 0.1)"
+    uploader_btn_border = "rgba(255, 255, 255, 0.2)"
 else:
     bg_overlay = "linear-gradient(rgba(240, 244, 248, 0.78), rgba(240, 244, 248, 0.88))"
     glass_card_bg = "rgba(255, 255, 255, 0.75)"
@@ -77,8 +77,8 @@ else:
     table_head_bg = "rgba(0, 0, 0, 0.04)"
     table_row_alt = "rgba(0, 0, 0, 0.015)"
     table_border = "rgba(0, 0, 0, 0.08)"
-    uploader_btn_bg = "rgba(15, 23, 42, 0.08)"
-    uploader_btn_border = "rgba(15, 23, 42, 0.2)"
+    uploader_btn_bg = "rgba(15, 23, 42, 0.06)"
+    uploader_btn_border = "rgba(15, 23, 42, 0.15)"
 
 bg_css = f"""
     background-image: {bg_overlay}, url("data:image/png;base64,{bg_base64}") !important;
@@ -100,6 +100,17 @@ st.markdown(f"""
     
     header {{visibility: hidden;}}
     
+    /* Preserve Streamlit Material Icon ligatures so 'upload' does not render as text */
+    span[data-testid="stIconMaterial"], 
+    i, 
+    [data-testid="stIconMaterial"],
+    .material-symbols-rounded {{
+        font-family: 'Material Symbols Rounded', 'Material Icons' !important;
+        font-style: normal !important;
+        font-weight: normal !important;
+        text-transform: none !important;
+    }}
+    
     /* Frosted Glass Sidebar */
     section[data-testid="stSidebar"] {{
         background: {glass_sidebar_bg} !important;
@@ -107,14 +118,17 @@ st.markdown(f"""
         -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
         border-right: 1px solid {glass_border} !important;
     }}
-    section[data-testid="stSidebar"] * {{
-        color: {text_primary};
+    section[data-testid="stSidebar"] p, 
+    section[data-testid="stSidebar"] span:not([data-testid="stIconMaterial"]), 
+    section[data-testid="stSidebar"] label {{
+        color: {text_secondary};
         font-family: 'Plus Jakarta Sans', sans-serif;
     }}
-    section[data-testid="stSidebar"] p, 
-    section[data-testid="stSidebar"] span, 
-    section[data-testid="stSidebar"] label {{
-        color: {text_secondary} !important;
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {{
+        color: {text_primary};
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }}
     
     /* Primary Glass Pill Button */
@@ -133,6 +147,7 @@ st.markdown(f"""
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         width: 100%;
         margin-top: 4px;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }}
     .stButton > button:hover {{
         transform: translateY(-2px);
@@ -151,38 +166,33 @@ st.markdown(f"""
         margin-bottom: 18px;
     }}
 
-    /* HIGH VISIBILITY FILE UPLOADER STYLING */
+    /* FILE UPLOADER CLEANUP */
     div[data-testid="stFileUploader"] {{
         background: {input_bg} !important;
         border: 1px dashed {input_border} !important;
         border-radius: 16px !important;
-        padding: 12px !important;
+        padding: 10px !important;
     }}
     div[data-testid="stFileUploader"] section {{
         background: transparent !important;
         border: none !important;
         padding: 0 !important;
     }}
+    div[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"],
     div[data-testid="stFileUploader"] button {{
         background: {uploader_btn_bg} !important;
         color: {text_primary} !important;
         border: 1px solid {uploader_btn_border} !important;
         border-radius: 10px !important;
-        padding: 6px 16px !important;
+        padding: 6px 14px !important;
         font-size: 13px !important;
-        font-weight: 700 !important;
+        font-weight: 600 !important;
         box-shadow: none !important;
-        margin-bottom: 4px !important;
     }}
+    div[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"]:hover,
     div[data-testid="stFileUploader"] button:hover {{
         background: {btn_glass} !important;
         border-color: {glass_border} !important;
-    }}
-    div[data-testid="stFileUploader"] small, 
-    div[data-testid="stFileUploader"] span {{
-        color: {text_secondary} !important;
-        font-size: 12px !important;
-        font-weight: 500 !important;
     }}
     
     /* Modern Glass Table Styling */
