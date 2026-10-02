@@ -57,24 +57,24 @@ if is_dark:
     input_border = "rgba(255, 255, 255, 0.15)"
     btn_glass = "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)"
     btn_color = "#F8FAFC"
-    table_head_bg = "rgba(255, 255, 255, 0.06)"
+    table_head_bg = "rgba(255, 255, 255, 0.08)"
     table_row_alt = "rgba(255, 255, 255, 0.03)"
-    table_border = "rgba(255, 255, 255, 0.08)"
+    table_border = "rgba(255, 255, 255, 0.1)"
 else:
     bg_overlay = "linear-gradient(rgba(240, 244, 248, 0.78), rgba(240, 244, 248, 0.88))"
-    glass_card_bg = "rgba(255, 255, 255, 0.7)"
+    glass_card_bg = "rgba(255, 255, 255, 0.75)"
     glass_sidebar_bg = "rgba(255, 255, 255, 0.75)"
     glass_border = "rgba(255, 255, 255, 0.85)"
     glass_highlight = "rgba(255, 255, 255, 0.95)"
     text_primary = "#0F172A"
     text_secondary = "#475569"
     input_bg = "rgba(255, 255, 255, 0.65)"
-    input_border = "rgba(255, 255, 255, 0.9)"
+    input_border = "rgba(0, 0, 0, 0.1)"
     btn_glass = "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 245, 250, 0.7) 100%)"
     btn_color = "#0F172A"
-    table_head_bg = "rgba(0, 0, 0, 0.03)"
+    table_head_bg = "rgba(0, 0, 0, 0.04)"
     table_row_alt = "rgba(0, 0, 0, 0.015)"
-    table_border = "rgba(0, 0, 0, 0.06)"
+    table_border = "rgba(0, 0, 0, 0.08)"
 
 bg_css = f"""
     background-image: {bg_overlay}, url("data:image/png;base64,{bg_base64}") !important;
@@ -121,22 +121,18 @@ st.markdown(f"""
         color: {btn_color} !important;
         border: 1px solid {glass_border} !important;
         border-radius: 9999px !important;
-        padding: 12px 28px !important;
-        font-size: 15px !important;
+        padding: 10px 24px !important;
+        font-size: 14px !important;
         font-weight: 700 !important;
         letter-spacing: -0.2px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), inset 0 1px 2px {glass_highlight} !important;
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), inset 0 1px 2px {glass_highlight} !important;
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         width: 100%;
-        margin-top: 6px;
+        margin-top: 4px;
     }}
     .stButton > button:hover {{
         transform: translateY(-2px);
-        box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.95) !important;
-        border-color: rgba(255, 255, 255, 0.9) !important;
-    }}
-    .stButton > button:active {{
-        transform: translateY(1px);
+        box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.95) !important;
     }}
 
     /* Frosted Glass Containers */
@@ -145,27 +141,44 @@ st.markdown(f"""
         backdrop-filter: blur(28px) saturate(190%);
         -webkit-backdrop-filter: blur(28px) saturate(190%);
         border: 1px solid {glass_border};
-        border-radius: 26px;
-        padding: 24px;
-        box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.05), inset 0 1px 1px {glass_highlight};
-        margin-bottom: 20px;
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.05), inset 0 1px 1px {glass_highlight};
+        margin-bottom: 18px;
     }}
 
-    /* Clean Frosted Inputs & Uploaders */
-    .stFileUploader section {{
+    /* Clean Up File Uploader Styles (Prevents Overlapping Text) */
+    div[data-testid="stFileUploader"] {{
         background: {input_bg} !important;
-        backdrop-filter: blur(16px) !important;
         border: 1px dashed {input_border} !important;
-        border-radius: 20px !important;
-        color: {text_primary} !important;
+        border-radius: 16px !important;
+        padding: 8px !important;
+    }}
+    div[data-testid="stFileUploader"] section {{
+        background: transparent !important;
+        border: none !important;
+        padding: 4px !important;
+    }}
+    div[data-testid="stFileUploader"] section button {{
+        background: {btn_glass} !important;
+        color: {btn_color} !important;
+        border: 1px solid {glass_border} !important;
+        border-radius: 12px !important;
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+        box-shadow: none !important;
+    }}
+    div[data-testid="stFileUploader"] section small {{
+        color: {text_secondary} !important;
     }}
     
     /* Modern Glass Table Styling */
     .custom-table-wrap {{
-        max-height: 420px;
+        max-height: 400px;
         overflow-y: auto;
-        border-radius: 18px;
+        border-radius: 16px;
         border: 1px solid {table_border};
+        margin-top: 10px;
     }}
     .custom-table-wrap::-webkit-scrollbar {{
         width: 6px;
@@ -174,36 +187,38 @@ st.markdown(f"""
         background: rgba(150, 150, 150, 0.3);
         border-radius: 999px;
     }}
-    .glass-table {{
+    table.glass-table {{
         width: 100%;
         border-collapse: collapse;
-        font-size: 13.5px;
+        font-size: 13px;
         text-align: left;
+        margin: 0;
+        padding: 0;
     }}
-    .glass-table th {{
+    table.glass-table th {{
         background: {table_head_bg};
         color: {text_secondary};
         font-weight: 700;
         text-transform: uppercase;
         font-size: 11px;
         letter-spacing: 0.6px;
-        padding: 14px 18px;
+        padding: 12px 16px;
         border-bottom: 1px solid {table_border};
         position: sticky;
         top: 0;
         backdrop-filter: blur(12px);
     }}
-    .glass-table td {{
-        padding: 14px 18px;
+    table.glass-table td {{
+        padding: 12px 16px;
         color: {text_primary};
         border-bottom: 1px solid {table_border};
         font-weight: 500;
     }}
-    .glass-table tr:nth-child(even) {{
+    table.glass-table tr:nth-child(even) {{
         background: {table_row_alt};
     }}
-    .glass-table tr:hover {{
-        background: rgba(255, 101, 132, 0.06);
+    table.glass-table tr:hover {{
+        background: rgba(255, 101, 132, 0.08);
     }}
 
     /* Stat Cards */
@@ -211,10 +226,10 @@ st.markdown(f"""
         background: linear-gradient(135deg, rgba(255, 138, 120, 0.88) 0%, rgba(255, 101, 132, 0.88) 100%);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 24px;
-        padding: 22px;
+        border-radius: 22px;
+        padding: 20px;
         color: #FFFFFF;
-        box-shadow: 0 12px 30px -8px rgba(255, 101, 132, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 28px -8px rgba(255, 101, 132, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
         height: 100%;
     }}
 
@@ -222,10 +237,10 @@ st.markdown(f"""
         background: linear-gradient(135deg, rgba(45, 212, 191, 0.88) 0%, rgba(20, 184, 166, 0.88) 100%);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 24px;
-        padding: 22px;
+        border-radius: 22px;
+        padding: 20px;
         color: #FFFFFF;
-        box-shadow: 0 12px 30px -8px rgba(20, 184, 166, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 28px -8px rgba(20, 184, 166, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
         height: 100%;
     }}
 
@@ -233,18 +248,18 @@ st.markdown(f"""
         background: linear-gradient(135deg, rgba(129, 140, 248, 0.88) 0%, rgba(99, 102, 241, 0.88) 100%);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 24px;
-        padding: 22px;
+        border-radius: 22px;
+        padding: 20px;
         color: #FFFFFF;
-        box-shadow: 0 12px 30px -8px rgba(99, 102, 241, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 28px -8px rgba(99, 102, 241, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
         height: 100%;
     }}
     
     .badge-pill {{
         background: rgba(255, 255, 255, 0.22);
         border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 11px;
+        padding: 3px 9px;
+        font-size: 10.5px;
         font-weight: 700;
         letter-spacing: 0.4px;
     }}
@@ -253,7 +268,7 @@ st.markdown(f"""
         background: rgba(239, 68, 68, 0.12);
         color: #EF4444;
         border: 1px solid rgba(239, 68, 68, 0.25);
-        padding: 4px 10px;
+        padding: 3px 9px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 700;
@@ -346,32 +361,29 @@ if 'raw_data' not in st.session_state:
 # SIDEBAR CONTROLS
 # ==========================================
 with st.sidebar:
-    # Clean, professional typography with no awkward emojis
     st.markdown(f"""
-    <div style='margin-bottom: 24px;'>
+    <div style='margin-bottom: 20px;'>
         <h2 style='margin:0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color:{text_primary};'>OptiCore Platform</h2>
-        <p style='font-size: 13px; color: {text_secondary}; margin-top: 3px; font-weight: 500;'>Workforce & SaaS Intelligence</p>
+        <p style='font-size: 12.5px; color: {text_secondary}; margin-top: 3px; font-weight: 500;'>Workforce & SaaS Intelligence</p>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown(f"<p style='font-weight: 700; font-size: 11px; margin-bottom: 6px; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.8px;'>Workforce Data</p>", unsafe_allow_html=True)
     
-    # Styled Clean Pill Button
     if st.button("Generate Logs"):
-        with st.spinner("Processing workflow logs..."):
+        with st.spinner("Processing logs..."):
             time.sleep(0.3)
             st.session_state['raw_data'] = generate_sample_data(2500)
     
-    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
     uploaded = st.file_uploader("Upload CSV Dataset", type=["csv"], help="Upload custom usage_logs.csv")
     if uploaded is not None:
         st.session_state['raw_data'] = pd.read_csv(uploaded)
         
-    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-weight: 700; font-size: 11px; margin-bottom: 6px; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.8px;'>Optimization Controls</p>", unsafe_allow_html=True)
     
-    # Sliders
-    cut_threshold = st.slider("Cut Threshold (%)", min_value=50, max_value=95, value=80, step=5, help="Flag license when automated tasks exceed this %")
+    cut_threshold = st.slider("Cut Threshold (%)", min_value=50, max_value=95, value=80, step=5)
     seat_cost = st.slider("License Cost / Seat ($)", min_value=10, max_value=500, value=100, step=10)
     
     st.divider()
@@ -388,15 +400,15 @@ results_df, total_emps, seats_cancelled, total_savings = process_pipeline(st.ses
 head_left, head_right = st.columns([3, 1])
 with head_left:
     st.markdown(f"""
-    <div style='margin-bottom: 24px;'>
-        <h1 style='font-size: 30px; font-weight: 800; color: {text_primary}; margin: 0; letter-spacing: -0.6px;'>Workforce Optimization Overview</h1>
-        <p style='font-size: 14px; color: {text_secondary}; margin-top: 4px;'>Automated license reclamation analysis & departmental velocity</p>
+    <div style='margin-bottom: 20px;'>
+        <h1 style='font-size: 28px; font-weight: 800; color: {text_primary}; margin: 0; letter-spacing: -0.6px;'>Workforce Optimization Overview</h1>
+        <p style='font-size: 13.5px; color: {text_secondary}; margin-top: 4px;'>Automated license reclamation analysis & departmental velocity</p>
     </div>
     """, unsafe_allow_html=True)
 with head_right:
     st.markdown(f"""
     <div style='text-align: right; padding-top: 8px;'>
-        <span style='background: {glass_card_bg}; backdrop-filter: blur(16px); border: 1px solid {glass_border}; border-radius: 999px; padding: 8px 18px; font-size: 12px; font-weight: 700; color: {text_primary}; box-shadow: 0 4px 14px rgba(0,0,0,0.04);'>
+        <span style='background: {glass_card_bg}; backdrop-filter: blur(16px); border: 1px solid {glass_border}; border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 700; color: {text_primary}; box-shadow: 0 4px 14px rgba(0,0,0,0.04);'>
             System Active
         </span>
     </div>
@@ -411,8 +423,8 @@ with m1:
     st.markdown(f"""
     <div class="glass-card">
         <span style="font-size: 11px; font-weight: 700; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.6px;">Total Workforce</span>
-        <div style="font-size: 36px; font-weight: 800; color: {text_primary}; margin: 10px 0 2px 0;">{total_emps:,}</div>
-        <div style="font-size: 12.5px; color: {text_secondary}; font-weight: 500;">Active accounts monitored</div>
+        <div style="font-size: 34px; font-weight: 800; color: {text_primary}; margin: 8px 0 2px 0;">{total_emps:,}</div>
+        <div style="font-size: 12px; color: {text_secondary}; font-weight: 500;">Active accounts monitored</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -421,8 +433,8 @@ with m2:
     st.markdown(f"""
     <div class="glass-hero-coral">
         <span class="badge-pill">Redundancy Rate</span>
-        <div style="font-size: 36px; font-weight: 800; margin: 10px 0 2px 0;">{pct_cut}%</div>
-        <div style="font-size: 12.5px; opacity: 0.92; font-weight: 500;">{seats_cancelled:,} Seats flagged for cut</div>
+        <div style="font-size: 34px; font-weight: 800; margin: 8px 0 2px 0;">{pct_cut}%</div>
+        <div style="font-size: 12px; opacity: 0.92; font-weight: 500;">{seats_cancelled:,} Seats flagged for cut</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -430,8 +442,8 @@ with m3:
     st.markdown(f"""
     <div class="glass-hero-teal">
         <span class="badge-pill">Monthly Recovery</span>
-        <div style="font-size: 36px; font-weight: 800; margin: 10px 0 2px 0;">${total_savings:,}</div>
-        <div style="font-size: 12.5px; opacity: 0.92; font-weight: 500;">Direct monthly savings</div>
+        <div style="font-size: 34px; font-weight: 800; margin: 8px 0 2px 0;">${total_savings:,}</div>
+        <div style="font-size: 12px; opacity: 0.92; font-weight: 500;">Direct monthly savings</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -440,8 +452,8 @@ with m4:
     st.markdown(f"""
     <div class="glass-hero-indigo">
         <span class="badge-pill">Annual Projection</span>
-        <div style="font-size: 36px; font-weight: 800; margin: 10px 0 2px 0;">${annual_savings:,}</div>
-        <div style="font-size: 12.5px; opacity: 0.92; font-weight: 500;">Run-rate capital saved</div>
+        <div style="font-size: 34px; font-weight: 800; margin: 8px 0 2px 0;">${annual_savings:,}</div>
+        <div style="font-size: 12px; opacity: 0.92; font-weight: 500;">Run-rate capital saved</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -453,16 +465,15 @@ c_left, c_right = st.columns([1.8, 1.2])
 with c_left:
     st.markdown(f"""
     <div class="glass-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div>
-                <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0;">Automation Velocity Trend</h3>
-                <p style="font-size: 12.5px; color: {text_secondary}; margin-top: 2px;">Quarterly AI automation capacity vs manual overhead</p>
+                <h3 style="font-size: 16.5px; font-weight: 700; color: {text_primary}; margin: 0;">Automation Velocity Trend</h3>
+                <p style="font-size: 12px; color: {text_secondary}; margin-top: 2px;">Quarterly AI automation capacity vs manual overhead</p>
             </div>
-            <span style="font-size: 11px; background: {input_bg}; border: 1px solid {glass_border}; padding: 5px 12px; border-radius: 999px; color: {text_secondary}; font-weight: 700;">H2 Analysis</span>
+            <span style="font-size: 11px; background: {input_bg}; border: 1px solid {glass_border}; padding: 4px 10px; border-radius: 999px; color: {text_secondary}; font-weight: 700;">H2 Analysis</span>
         </div>
     """, unsafe_allow_html=True)
     
-    # Smooth Spline Curve Chart
     timeline_months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan']
     fig = go.Figure()
     
@@ -483,7 +494,7 @@ with c_left:
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        height=240,
+        height=230,
         margin=dict(l=10, r=10, t=10, b=10),
         legend=dict(orientation="h", yanchor="bottom", y=-0.28, xanchor="center", x=0.5, font=dict(color=text_secondary, size=11)),
         xaxis=dict(showgrid=True, gridcolor="rgba(150, 150, 150, 0.1)", color=text_secondary, showline=False, zeroline=False),
@@ -496,8 +507,8 @@ with c_left:
 with c_right:
     st.markdown(f"""
     <div class="glass-card">
-        <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0 0 4px 0;">Departmental Density</h3>
-        <p style="font-size: 12.5px; color: {text_secondary}; margin-bottom: 14px;">Automation potential per business unit</p>
+        <h3 style="font-size: 16.5px; font-weight: 700; color: {text_primary}; margin: 0 0 4px 0;">Departmental Density</h3>
+        <p style="font-size: 12px; color: {text_secondary}; margin-bottom: 12px;">Automation potential per business unit</p>
     """, unsafe_allow_html=True)
     
     dept_breakdown = results_df.groupby('Department').agg(
@@ -512,12 +523,12 @@ with c_right:
         bar_color = "#FF6584" if rate >= 70 else ("#2DD4BF" if rate >= 40 else "#818CF8")
         
         st.markdown(f"""
-        <div style="margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 4px;">
+        <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 3px;">
                 <span style="color: {text_primary};">{dept_name}</span>
                 <span style="color: {text_secondary};">{rate}% ({cancels} cuts)</span>
             </div>
-            <div style="width: 100%; height: 7px; background-color: {input_bg}; border-radius: 999px; overflow: hidden; border: 1px solid {glass_border};">
+            <div style="width: 100%; height: 6px; background-color: {input_bg}; border-radius: 999px; overflow: hidden; border: 1px solid {glass_border};">
                 <div style="width: {rate}%; height: 100%; background: {bar_color}; border-radius: 999px;"></div>
             </div>
         </div>
@@ -526,16 +537,16 @@ with c_right:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# ROW 3: MODERN FROSTED GLASS ACTION TABLE (NO BLACK BOXES)
+# ROW 3: CLEAN NATIVE GLASS TABLE (100% RELIABLE)
 # ----------------------------------------------------
 st.markdown(f"""
 <div class="glass-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
         <div>
-            <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0;">License Reclamation Audit</h3>
-            <p style="font-size: 12.5px; color: {text_secondary}; margin-top: 2px;">Employees with &ge; {cut_threshold}% repetitive automatable workflows</p>
+            <h3 style="font-size: 16.5px; font-weight: 700; color: {text_primary}; margin: 0;">License Reclamation Audit</h3>
+            <p style="font-size: 12px; color: {text_secondary}; margin-top: 2px;">Employees with &ge; {cut_threshold}% repetitive automatable workflows</p>
         </div>
-        <span style="background: rgba(255, 101, 132, 0.14); color: #FF6584; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; border: 1px solid rgba(255,101,132,0.3);">
+        <span style="background: rgba(255, 101, 132, 0.14); color: #FF6584; padding: 5px 14px; border-radius: 999px; font-size: 11.5px; font-weight: 800; border: 1px solid rgba(255,101,132,0.3);">
             {seats_cancelled} Licenses Eligible
         </span>
     </div>
@@ -543,43 +554,37 @@ st.markdown(f"""
 
 cancel_table = results_df[results_df['Flag_Cancel'] == True].sort_values(by='Total_Tasks', ascending=False)
 
-# Render clean, glassmorphic custom table (Guaranteed zero black boxes in both modes)
-table_rows_html = ""
+# Format single string without linebreaks or 4-space indents to avoid Streamlit markdown code blocks
+rows_list = []
 for _, r in cancel_table.iterrows():
-    uid = r['User_ID']
-    dept = r['Department']
-    tot = r['Total_Tasks']
-    auto = r['Auto_Tasks']
-    score = f"{r['Automation_Rate']:.1f}%"
-    
-    table_rows_html += f"""
-    <tr>
-        <td style="font-weight: 700;">{uid}</td>
-        <td>{dept}</td>
-        <td>{tot}</td>
-        <td>{auto}</td>
-        <td style="color: #FF6584; font-weight: 700;">{score}</td>
-        <td><span class="action-pill">Revoke License</span></td>
-    </tr>
-    """
+    rows_list.append(
+        f"<tr>"
+        f"<td style='font-weight:700;'>{r['User_ID']}</td>"
+        f"<td>{r['Department']}</td>"
+        f"<td>{r['Total_Tasks']}</td>"
+        f"<td>{r['Auto_Tasks']}</td>"
+        f"<td style='color:#FF6584; font-weight:700;'>{r['Automation_Rate']:.1f}%</td>"
+        f"<td><span class='action-pill'>Revoke License</span></td>"
+        f"</tr>"
+    )
 
-st.markdown(f"""
-<div class="custom-table-wrap">
-    <table class="glass-table">
-        <thead>
-            <tr>
-                <th>Employee ID</th>
-                <th>Department</th>
-                <th>Logged Tasks</th>
-                <th>Automatable Tasks</th>
-                <th>Automation Score</th>
-                <th>Recommended Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {table_rows_html}
-        </tbody>
-    </table>
-</div>
-</div>
-""", unsafe_allow_html=True)
+table_body = "".join(rows_list)
+
+table_html = (
+    f"<div class='custom-table-wrap'>"
+    f"<table class='glass-table'>"
+    f"<thead><tr>"
+    f"<th>Employee ID</th>"
+    f"<th>Department</th>"
+    f"<th>Logged Tasks</th>"
+    f"<th>Automatable Tasks</th>"
+    f"<th>Automation Score</th>"
+    f"<th>Recommended Action</th>"
+    f"</tr></thead>"
+    f"<tbody>{table_body}</tbody>"
+    f"</table>"
+    f"</div>"
+)
+
+st.markdown(table_html, unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
