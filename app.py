@@ -3,211 +3,508 @@ import pandas as pd
 import random
 import time
 import plotly.express as px
+import plotly.graph_objects as go
 
 # ==========================================
-# STEP 5: Beautiful Minimal UI (Streamlit)
+# PAGE CONFIGURATION
 # ==========================================
-st.set_page_config(page_title="AI SaaS Optimizer", layout="wide", page_icon="✨")
+st.set_page_config(
+    page_title="AI SaaS Optimization Engine",
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Inject Custom CSS for Minimal Soft/Neumorphic UI
-st.markdown("""
+# ==========================================
+# THEME CONFIGURATION & DYNAMIC STYLING
+# ==========================================
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "Light"
+
+# Sidebar Theme Selector
+with st.sidebar:
+    st.markdown("### ⚙️ Preferences")
+    theme = st.radio(
+        "Interface Mode",
+        ["☀️ Light", "🌙 Dark"],
+        index=0 if st.session_state.theme_mode == "Light" else 1,
+        horizontal=True
+    )
+    st.session_state.theme_mode = "Light" if "Light" in theme else "Dark"
+
+is_dark = st.session_state.theme_mode == "Dark"
+
+# Theme Palette Variables
+if is_dark:
+    bg_color = "#0F1115"
+    sidebar_bg = "#16181D"
+    card_bg = "#1C1F26"
+    card_border = "rgba(255, 255, 255, 0.08)"
+    text_primary = "#F1F5F9"
+    text_secondary = "#94A3B8"
+    input_bg = "#232730"
+    input_border = "#333846"
+    chart_grid = "rgba(255, 255, 255, 0.05)"
+    chart_bg = "rgba(0,0,0,0)"
+    btn_bg = "#22252C"
+    btn_border = "#323742"
+    btn_text = "#E2E8F0"
+    btn_shadow = "inset 1px 1px 3px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.5)"
+else:
+    bg_color = "#F4F6F9"
+    sidebar_bg = "#FFFFFF"
+    card_bg = "#FFFFFF"
+    card_border = "rgba(0, 0, 0, 0.06)"
+    text_primary = "#0F172A"
+    text_secondary = "#64748B"
+    input_bg = "#F8FAFC"
+    input_border = "#E2E8F0"
+    chart_grid = "rgba(0, 0, 0, 0.05)"
+    chart_bg = "rgba(0,0,0,0)"
+    btn_bg = "#1E2229"
+    btn_border = "#2E3440"
+    btn_text = "#D8DEE9"
+    btn_shadow = "inset 2px 2px 4px rgba(255,255,255,0.12), inset -2px -2px 6px rgba(0,0,0,0.6), 0 6px 16px rgba(0,0,0,0.15)"
+
+# Custom CSS Injection
+st.markdown(f"""
 <style>
-    /* Main Background - Soft light gray like the dashboard image */
-    .stApp {
-        background-color: #f4f5f7;
-        font-family: 'Inter', sans-serif;
-    }
+    /* Global Styles */
+    .stApp {{
+        background-color: {bg_color};
+        color: {text_primary};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }}
     
-    /* Hide Streamlit Header */
-    header {visibility: hidden;}
-
-    /* Styling the Metric Cards (Glassmorphic / Soft look) */
-    div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, #ffffff 0%, #f9f9fa 100%);
-        border-radius: 24px;
-        padding: 24px;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-    }
-    div[data-testid="metric-container"] label {
-        color: #64748b;
-        font-weight: 500;
-        font-size: 14px;
-    }
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
-        color: #0f172a;
-        font-weight: 700;
-        font-size: 36px;
-    }
-
-    /* Neumorphic Dark Button (from Image 2) */
-    .stButton > button {
-        background: #2a2a2a !important;
-        color: #a0a0a0 !important;
-        border: 1px solid #3a3a3a !important;
-        border-radius: 20px !important;
-        padding: 10px 30px !important;
-        font-size: 18px !important;
-        font-weight: 500 !important;
-        letter-spacing: 1px;
-        box-shadow: 
-            inset 2px 2px 5px rgba(255,255,255,0.05), 
-            inset -3px -3px 7px rgba(0,0,0,0.5),
-            4px 4px 10px rgba(0,0,0,0.2) !important;
-        transition: all 0.2s ease;
-    }
-    .stButton > button:hover {
-        color: #ffffff !important;
-        transform: translateY(-1px);
-        box-shadow: 
-            inset 2px 2px 5px rgba(255,255,255,0.08), 
-            inset -3px -3px 7px rgba(0,0,0,0.6),
-            5px 5px 12px rgba(0,0,0,0.3) !important;
-    }
-    .stButton > button:active {
-        transform: translateY(2px);
-        box-shadow: 
-            inset 3px 3px 7px rgba(0,0,0,0.6), 
-            inset -2px -2px 5px rgba(255,255,255,0.05) !important;
-    }
+    header {{visibility: hidden;}}
     
     /* Sidebar Styling */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e2e8f0;
-    }
+    section[data-testid="stSidebar"] {{
+        background-color: {sidebar_bg} !important;
+        border-right: 1px solid {card_border} !important;
+    }}
+    section[data-testid="stSidebar"] * {{
+        color: {text_primary};
+    }}
+    section[data-testid="stSidebar"] p, 
+    section[data-testid="stSidebar"] span, 
+    section[data-testid="stSidebar"] label {{
+        color: {text_secondary} !important;
+    }}
     
-    /* Clean up the dataframe */
-    .stDataFrame {
-        border-radius: 16px;
+    /* Neumorphic Dark Pill Button (as in reference image) */
+    .stButton > button {{
+        background: {btn_bg} !important;
+        color: {btn_text} !important;
+        border: 1px solid {btn_border} !important;
+        border-radius: 9999px !important;
+        padding: 10px 28px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px;
+        box-shadow: {btn_shadow} !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        margin-top: 6px;
+    }}
+    .stButton > button:hover {{
+        transform: translateY(-1px);
+        color: #FFFFFF !important;
+        box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2), inset -2px -2px 6px rgba(0,0,0,0.8), 0 8px 20px rgba(0,0,0,0.25) !important;
+    }}
+    .stButton > button:active {{
+        transform: translateY(1px);
+        box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,255,255,0.1) !important;
+    }}
+    
+    /* Inputs & File Uploader */
+    .stTextInput > div > div, 
+    .stNumberInput > div > div, 
+    .stFileUploader > div > div {{
+        background-color: {input_bg} !important;
+        border: 1px solid {input_border} !important;
+        border-radius: 14px !important;
+        color: {text_primary} !important;
+    }}
+    
+    .stFileUploader section {{
+        background-color: {input_bg} !important;
+        border: 1px dashed {input_border} !important;
+        border-radius: 16px !important;
+        padding: 12px !important;
+    }}
+    
+    /* Streamlit Metric Container Override */
+    div[data-testid="metric-container"] {{
+        background-color: {card_bg};
+        border: 1px solid {card_border};
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 4px 20px -4px rgba(0, 0, 0, { "0.2" if is_dark else "0.04" });
+    }}
+    
+    /* Dataframe Table Rounded */
+    .stDataFrame {{
+        border-radius: 18px !important;
+        overflow: hidden !important;
+        border: 1px solid {card_border} !important;
+        background-color: {card_bg} !important;
+    }}
+    
+    /* Card UI helpers */
+    .custom-card {{
+        background-color: {card_bg};
+        border: 1px solid {card_border};
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 4px 24px -4px rgba(0, 0, 0, { "0.3" if is_dark else "0.05" });
+        height: 100%;
+    }}
+    
+    .gradient-card-coral {{
+        background: linear-gradient(135deg, #FFB8A9 0%, #FF8F77 50%, #FF6584 100%);
+        border-radius: 24px;
+        padding: 24px;
+        color: #1A1A1A;
+        box-shadow: 0 8px 24px -4px rgba(255, 101, 132, 0.35);
+        height: 100%;
+        position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    }
+    }}
+    
+    .gradient-card-teal {{
+        background: linear-gradient(135deg, #99F6E4 0%, #5EEAD4 50%, #2DD4BF 100%);
+        border-radius: 24px;
+        padding: 24px;
+        color: #042F2E;
+        box-shadow: 0 8px 24px -4px rgba(45, 212, 191, 0.35);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .gradient-card-purple {{
+        background: linear-gradient(135deg, #DDD6FE 0%, #C4B5FD 50%, #A78BFA 100%);
+        border-radius: 24px;
+        padding: 24px;
+        color: #2E1065;
+        box-shadow: 0 8px 24px -4px rgba(167, 139, 250, 0.35);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .card-label {{
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }}
+    .card-val {{
+        font-size: 38px;
+        font-weight: 800;
+        margin: 12px 0 4px 0;
+        line-height: 1.1;
+    }}
+    .card-sub {{
+        font-size: 13px;
+        font-weight: 500;
+        opacity: 0.8;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# STEP 1: Fake Data Generation
+# BUSINESS LOGIC & DATA GENERATOR
 # ==========================================
-def generate_sample_data(num_rows=500):
-    user_ids = [f"EMP-{str(i).zfill(3)}" for i in range(1, (num_rows // 5) + 2)]
-    departments = ['Sales', 'HR', 'IT', 'Customer Support', 'Marketing']
+def generate_sample_data(num_rows=2500):
+    user_ids = [f"EMP-{str(i).zfill(4)}" for i in range(1, (num_rows // 5) + 2)]
+    departments = ['Sales', 'HR', 'IT', 'Customer Support', 'Marketing', 'Finance']
     
-    automatable_tasks = ['Copy-pasting emails', 'Data entry', 'Sorting spreadsheets', 'Scheduling']
-    human_tasks = ['Negotiating', 'Interviewing', 'Strategy planning', 'Designing', 'Resolving conflict']
+    auto_tasks = [
+        'Copy-pasting emails into CRM', 
+        'Data entry from invoices', 
+        'Sorting spreadsheets', 
+        'Scheduling calendar invites',
+        'Extracting numbers from PDFs',
+        'Formatting monthly reports',
+        'Sending automated follow-ups'
+    ]
+    human_tasks = [
+        'Negotiating client contract', 
+        'Interviewing candidates', 
+        'High-level strategy planning', 
+        'Designing branding assets', 
+        'Resolving employee dispute',
+        'Facilitating executive meeting',
+        'Auditing strategic compliance'
+    ]
 
-    data = []
+    records = []
     for _ in range(num_rows):
         dept = random.choice(departments)
-        user_id = random.choice(user_ids)
-        task = random.choice(human_tasks + automatable_tasks) if dept in ['IT', 'HR'] else random.choice(automatable_tasks + human_tasks)
-        data.append({'User_ID': user_id, 'Department': dept, 'Task_Description': task})
-    return pd.DataFrame(data)
+        uid = random.choice(user_ids)
+        if dept in ['Customer Support', 'Sales', 'Finance']:
+            task = random.choice(auto_tasks + human_tasks[:2])
+        else:
+            task = random.choice(human_tasks + auto_tasks[:2])
+        records.append({'User_ID': uid, 'Department': dept, 'Task_Description': task})
+    return pd.DataFrame(records)
 
-# ==========================================
-# STEP 2 & 3 & 4: Processing
-# ==========================================
 def clean_data(df):
     for col in df.select_dtypes(include=['object']):
         df[col] = df[col].astype(str).str.strip().str.title()
     return df
 
-def classify_task(task_description):
-    task = str(task_description).lower()
-    auto = ['copy', 'paste', 'data', 'sort', 'format', 'schedule', 'extract', 'compile']
-    human = ['negotiate', 'interview', 'design', 'strategy', 'resolve', 'brainstorm', 'counsel', 'lead']
-    if any(k in task for k in human): return "Not Automatable"
-    elif any(k in task for k in auto): return "Automatable"
+def classify_task(task_desc):
+    task = str(task_desc).lower()
+    auto_kw = ['copy', 'paste', 'data', 'sort', 'format', 'schedule', 'extract', 'compile', 'automated', 'entry']
+    human_kw = ['negotiate', 'interview', 'design', 'strategy', 'resolve', 'brainstorm', 'counsel', 'lead', 'audit', 'meeting']
+    
+    if any(k in task for k in human_kw):
+        return "Not Automatable"
+    elif any(k in task for k in auto_kw):
+        return "Automatable"
     return "Needs Review"
 
-def classify_dataframe(df):
-    if 'Task_Description' in df.columns:
-        df['Automation_Status'] = df['Task_Description'].apply(classify_task)
-    return df
-
-def calculate_financials(df, software_cost=100):
-    if 'User_ID' not in df.columns or 'Automation_Status' not in df.columns:
-        return pd.DataFrame(), 0, 0, 0
-    df['Is_Automatable_Num'] = df['Automation_Status'].apply(lambda x: 1 if x == 'Automatable' else 0)
-    user_stats = df.groupby(['User_ID', 'Department']).agg(
-        Total_Tasks=('Automation_Status', 'count'),
-        Automatable_Tasks=('Is_Automatable_Num', 'sum')
-    ).reset_index()
-    user_stats['Automation_Percentage'] = (user_stats['Automatable_Tasks'] / user_stats['Total_Tasks']) * 100
-    user_stats['Cancel_Account'] = user_stats['Automation_Percentage'] >= 80
-    return user_stats, len(user_stats), user_stats['Cancel_Account'].sum(), user_stats['Cancel_Account'].sum() * software_cost
-
-
-# --- SIDEBAR ---
-with st.sidebar:
-    st.markdown("### ✨ Welcome, Admin")
-    st.markdown("Your optimization dashboard")
-    st.divider()
+def process_pipeline(df, software_cost=100):
+    df_clean = clean_data(df.copy())
+    if 'Task_Description' in df_clean.columns:
+        df_clean['Automation_Status'] = df_clean['Task_Description'].apply(classify_task)
+    else:
+        df_clean['Automation_Status'] = 'Automatable'
+        
+    df_clean['Is_Auto'] = df_clean['Automation_Status'].apply(lambda x: 1 if x == 'Automatable' else 0)
     
-    if st.button("start"):
-        st.session_state['raw_data'] = generate_sample_data(1000)
-        
-    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
-    if uploaded_file is not None:
-        st.session_state['raw_data'] = pd.read_csv(uploaded_file)
-        
-    software_cost = st.number_input("License Cost ($)", value=100, step=10)
+    user_grp = df_clean.groupby(['User_ID', 'Department']).agg(
+        Total_Tasks=('Automation_Status', 'count'),
+        Auto_Tasks=('Is_Auto', 'sum')
+    ).reset_index()
+    
+    user_grp['Automation_Rate'] = (user_grp['Auto_Tasks'] / user_grp['Total_Tasks']) * 100
+    user_grp['Flag_Cancel'] = user_grp['Automation_Rate'] >= 80
+    
+    tot_emps = len(user_grp)
+    seats_to_cancel = int(user_grp['Flag_Cancel'].sum())
+    savings = seats_to_cancel * software_cost
+    
+    return user_grp, tot_emps, seats_to_cancel, savings
 
-# --- MAIN DASHBOARD ---
-st.markdown("<h2 style='font-weight: 600; color: #1e293b; margin-bottom: 30px;'>Optimization Overview</h2>", unsafe_allow_html=True)
-
+# Default initialize session state data
 if 'raw_data' not in st.session_state:
-    st.info("Click 'start' in the sidebar or upload data.")
-else:
-    with st.spinner("Analyzing..."):
-        time.sleep(0.5)
-        cleaned_df = clean_data(st.session_state['raw_data'].copy())
-        classified_df = classify_dataframe(cleaned_df)
-        results_df, total_emps, seats_cancelled, total_savings = calculate_financials(classified_df, software_cost)
-        
-    if not results_df.empty:
-        # TOP METRICS
-        c1, c2, c3 = st.columns(3)
-        with c1: st.metric("Employees", f"{total_emps:,}")
-        with c2: st.metric("Seats to Cancel", f"{seats_cancelled:,}", "+83% Avg. Completed") # Mimicking the image text vibe
-        with c3: st.metric("Dollars Saved", f"${total_savings:,}", "+56% Additional")
+    st.session_state['raw_data'] = generate_sample_data(1200)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+# ==========================================
+# SIDEBAR CONTROLS
+# ==========================================
+with st.sidebar:
+    st.markdown(f"<div style='display: flex; align-items: center; gap: 10px; margin-bottom: 8px;'><span style='font-size: 24px;'>⚡</span><h2 style='margin:0; font-size: 20px; font-weight: 700; color:{text_primary};'>AI Optimizer</h2></div>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size: 13px; color: {text_secondary}; margin-bottom: 20px;'>Intelligent Workforce & SaaS License Audit</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"<div style='font-weight: 600; font-size: 14px; margin-bottom: 6px; color: {text_primary};'>Data Source</div>", unsafe_allow_html=True)
+    
+    col_btn, col_empty = st.columns([1, 0.01])
+    with col_btn:
+        if st.button("start"):
+            with st.spinner("Generating fresh logs..."):
+                st.session_state['raw_data'] = generate_sample_data(2000)
+    
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    uploaded = st.file_uploader("Upload logs (CSV)", type=["csv"], help="Upload your custom usage_logs.csv")
+    if uploaded is not None:
+        st.session_state['raw_data'] = pd.read_csv(uploaded)
         
-        # CHARTS (Minimal styling)
-        dept_stats = results_df.groupby('Department').agg(
-            Avg_Automation=('Automation_Percentage', 'mean'),
-            Accounts_Flagged=('Cancel_Account', 'sum')
-        ).reset_index()
-        
-        # Create a smooth line chart similar to the "Focusing" chart in image 1
-        st.markdown("<h4 style='font-weight: 600; color: #1e293b;'>Productivity analytics</h4>", unsafe_allow_html=True)
-        
-        # Fake some timeline data for the beautiful spline chart
-        timeline_data = pd.DataFrame({
-            'Month': ['Aug', 'Sep', 'Oct', 'Nov'],
-            'Max Focus': [40, 80, 30, 60],
-            'Min Focus': [20, 60, 40, 50]
-        })
-        
-        fig_line = px.line(
-            timeline_data, x='Month', y=['Max Focus', 'Min Focus'],
-            color_discrete_sequence=['#ff6b6b', '#4834d4']
-        )
-        fig_line.update_traces(line_shape='spline', line=dict(width=3))
-        fig_line.update_layout(
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(showgrid=True, gridcolor='#f1f2f6', title='', showline=False, zeroline=False),
-            yaxis=dict(showgrid=True, gridcolor='#f1f2f6', title='', showticklabels=False, showline=False, zeroline=False),
-            legend_title='',
-            legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
-            margin=dict(l=0, r=0, t=10, b=0)
-        )
-        st.plotly_chart(fig_line, use_container_width=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-weight: 600; font-size: 14px; margin-bottom: 4px; color: {text_primary};'>Cost Parameters</div>", unsafe_allow_html=True)
+    seat_cost = st.number_input("License Cost per Seat ($)", min_value=10, max_value=5000, value=100, step=10)
+    
+    st.divider()
+    st.markdown(f"<div style='font-size: 12px; color: {text_secondary}; text-align: center;'>Engine version 2.4 • Active</div>", unsafe_allow_html=True)
 
-        # DATA TABLE
-        st.markdown("<h4 style='font-weight: 600; color: #1e293b; margin-top: 30px;'>Developed areas (Actionable Licenses)</h4>", unsafe_allow_html=True)
-        cancellations = results_df[results_df['Cancel_Account'] == True].copy()
-        cancellations['Automation_Percentage'] = cancellations['Automation_Percentage'].round(1).astype(str) + "%"
-        st.dataframe(cancellations.drop(columns=['Cancel_Account']), use_container_width=True)
+# ==========================================
+# MAIN DASHBOARD AREA
+# ==========================================
+
+# Top Navigation Bar Simulation
+header_col1, header_col2 = st.columns([3, 1])
+with header_col1:
+    st.markdown(f"""
+    <div style='margin-bottom: 24px;'>
+        <h1 style='font-size: 28px; font-weight: 700; color: {text_primary}; margin: 0;'>Welcome, Admin</h1>
+        <p style='font-size: 14px; color: {text_secondary}; margin-top: 4px;'>Your executive license optimization overview</p>
+    </div>
+    """, unsafe_allow_html=True)
+with header_col2:
+    st.markdown(f"""
+    <div style='text-align: right; padding-top: 6px;'>
+        <span style='background: {"rgba(255,255,255,0.06)" if is_dark else "#FFFFFF"}; border: 1px solid {card_border}; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: {text_primary}; box-shadow: 0 2px 8px rgba(0,0,0,0.04);'>
+            🟢 Engine Connected
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Run Processing
+results_df, total_emps, seats_cancelled, total_savings = process_pipeline(st.session_state['raw_data'], seat_cost)
+
+# ----------------------------------------------------
+# ROW 1: MINIMAL GRADIENT METRIC CARDS (from Reference)
+# ----------------------------------------------------
+c_metric1, c_metric2, c_metric3, c_metric4 = st.columns(4)
+
+with c_metric1:
+    st.markdown(f"""
+    <div class="custom-card">
+        <div class="card-label" style="color: {text_secondary};">Total Workforce</div>
+        <div class="card-val" style="color: {text_primary};">{total_emps:,}</div>
+        <div class="card-sub" style="color: {text_secondary};">Active accounts analyzed</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_metric2:
+    pct_cut = round((seats_cancelled / total_emps * 100), 1) if total_emps else 0
+    st.markdown(f"""
+    <div class="gradient-card-coral">
+        <div class="card-label">Prioritized Cuts</div>
+        <div class="card-val">{pct_cut}%</div>
+        <div class="card-sub">{seats_cancelled:,} Seats eligible for removal</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_metric3:
+    st.markdown(f"""
+    <div class="gradient-card-teal">
+        <div class="card-label">Monthly Recovery</div>
+        <div class="card-val">${total_savings:,}</div>
+        <div class="card-sub">Direct software savings @ ${seat_cost}/seat</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_metric4:
+    annual_savings = total_savings * 12
+    st.markdown(f"""
+    <div class="gradient-card-purple">
+        <div class="card-label">Annual Projected ROI</div>
+        <div class="card-val">${annual_savings:,}</div>
+        <div class="card-sub">Run-rate reduction efficiency</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+
+# ----------------------------------------------------
+# ROW 2: ANALYTICS & FOCUS HEATMAP (Spline Curve Chart)
+# ----------------------------------------------------
+chart_left, chart_right = st.columns([1.8, 1.2])
+
+with chart_left:
+    st.markdown(f"""
+    <div class="custom-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+                <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0;">Focusing & Task Automation Velocity</h3>
+                <p style="font-size: 13px; color: {text_secondary}; margin-top: 2px;">Productivity shift over quarters</p>
+            </div>
+            <span style="font-size: 12px; background: {input_bg}; border: 1px solid {input_border}; padding: 4px 10px; border-radius: 12px; color: {text_secondary}; font-weight: 600;">Range: Last 6 mo</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Smooth Spline Trend Chart (Matching Image 1 reference)
+    months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan']
+    fig_spline = go.Figure()
+    
+    fig_spline.add_trace(go.Scatter(
+        x=months, y=[32, 68, 45, 82, 60, 78],
+        mode='lines',
+        name='AI Automation Capacity',
+        line=dict(color='#FF6584', width=3.5, shape='spline'),
+    ))
+    
+    fig_spline.add_trace(go.Scatter(
+        x=months, y=[75, 42, 65, 30, 52, 28],
+        mode='lines',
+        name='Manual Effort Required',
+        line=dict(color='#4F46E5', width=3.5, shape='spline'),
+    ))
+    
+    fig_spline.update_layout(
+        plot_bgcolor=chart_bg,
+        paper_bgcolor=chart_bg,
+        height=260,
+        margin=dict(l=10, r=10, t=10, b=10),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5, font=dict(color=text_secondary, size=12)),
+        xaxis=dict(showgrid=True, gridcolor=chart_grid, color=text_secondary, showline=False, zeroline=False),
+        yaxis=dict(showgrid=True, gridcolor=chart_grid, color=text_secondary, showticklabels=False, showline=False, zeroline=False)
+    )
+    
+    st.plotly_chart(fig_spline, use_container_width=True, config={'displayModeBar': False})
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with chart_right:
+    st.markdown(f"""
+    <div class="custom-card">
+        <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0 0 4px 0;">Developed Areas</h3>
+        <p style="font-size: 13px; color: {text_secondary}; margin-bottom: 16px;">Departmental Automation Breakdown</p>
+    """, unsafe_allow_html=True)
+    
+    dept_breakdown = results_df.groupby('Department').agg(
+        Avg_Auto=('Automation_Rate', 'mean'),
+        Cancels=('Flag_Cancel', 'sum')
+    ).reset_index().sort_values(by='Avg_Auto', ascending=False)
+    
+    for _, row in dept_breakdown.iterrows():
+        dept_name = row['Department']
+        rate = int(row['Avg_Auto'])
+        cancels = int(row['Cancels'])
+        
+        # Color indicator based on rate
+        bar_color = "#FF6584" if rate >= 70 else ("#2DD4BF" if rate >= 40 else "#6366F1")
+        
+        st.markdown(f"""
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 4px;">
+                <span style="color: {text_primary};">{dept_name}</span>
+                <span style="color: {text_secondary};">{rate}% ({cancels} cuts)</span>
+            </div>
+            <div style="width: 100%; height: 8px; background-color: {input_bg}; border-radius: 999px; overflow: hidden; border: 1px solid {card_border};">
+                <div style="width: {rate}%; height: 100%; background: {bar_color}; border-radius: 999px; transition: width 0.8s ease;"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+
+# ----------------------------------------------------
+# ROW 3: ACTIONABLE SEATS TABLE
+# ----------------------------------------------------
+st.markdown(f"""
+<div class="custom-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+            <h3 style="font-size: 17px; font-weight: 700; color: {text_primary}; margin: 0;">Flagged Accounts for Seat Revocation</h3>
+            <p style="font-size: 13px; color: {text_secondary}; margin-top: 2px;">Employees with &ge; 80% repetitive tasks automated</p>
+        </div>
+        <span style="background: rgba(255, 101, 132, 0.12); color: #FF6584; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+            {seats_cancelled} Redundant Licenses
+        </span>
+    </div>
+""", unsafe_allow_html=True)
+
+cancel_table = results_df[results_df['Flag_Cancel'] == True].copy()
+cancel_table['Automation_Rate'] = cancel_table['Automation_Rate'].round(1).astype(str) + "%"
+cancel_table = cancel_table.rename(columns={
+    'User_ID': 'Employee ID',
+    'Department': 'Department',
+    'Total_Tasks': 'Logged Tasks',
+    'Auto_Tasks': 'Automatable Tasks',
+    'Automation_Rate': 'Automation Score'
+}).drop(columns=['Flag_Cancel'])
+
+st.dataframe(
+    cancel_table.sort_values(by='Logged Tasks', ascending=False),
+    use_container_width=True,
+    hide_index=True
+)
+st.markdown("</div>", unsafe_allow_html=True)
