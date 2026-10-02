@@ -2,6 +2,12 @@
 
 # ⚡ AI-Driven SaaS Optimization Engine
 
+<p align="center">
+  <a href="https://ai-saas-optimizer-xx3kq4f5ngjcs3urmyjh2x.streamlit.app/">
+    <img src="https://img.shields.io/badge/🟢_LIVE_APP-CLICK_HERE_TO_TEST_THE_DASHBOARD-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live App" />
+  </a>
+</p>
+
 <a href="https://git.io/typing-svg">
 <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&color=4ADE80&background=0F172A&center=true&vCenter=true&width=800&lines=Analyze+SaaS+Licenses+with+AI;Identify+Redundant+Software+Accounts;Calculate+Instant+Financial+Savings;Data+Generation+%E2%86%92+Cleaning+%E2%86%92+NLP+%E2%86%92+Reporting" alt="Typing SVG" />
 </a>
@@ -31,19 +37,17 @@ An intelligent, 5-step pipeline wrapped in a beautiful web application to help e
 
 ## 🚀 Quick Start
 
-### 1. Clone the repository
+### 1. View the Live App
+No installation required! Simply visit the live deployment hosted on Streamlit Community Cloud:
+👉 **[Launch AI SaaS Optimizer](https://ai-saas-optimizer-xx3kq4f5ngjcs3urmyjh2x.streamlit.app/)**
+
+*(We have also provided a 20,000-row demo dataset `demo_usage_logs.csv` in this repository that you can upload to the live app!)*
+
+### 2. Run Locally
 ```bash
 git clone https://github.com/shaktixgit/ai-saas-optimizer.git
 cd ai-saas-optimizer
-```
-
-### 2. Install dependencies
-```bash
-pip install streamlit pandas plotly
-```
-
-### 3. Run the application
-```bash
+pip install -r requirements.txt
 streamlit run app.py
 ```
 
