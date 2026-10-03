@@ -4,56 +4,7 @@ import random
 import time
 import os
 import base64
-import sqlite3
 import plotly.graph_objects as go
-
-# ==========================================
-# DATABASE PERSISTENCE FOR USER ONBOARDING
-# ==========================================
-DB_FILE = "user_profile.db"
-
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-def get_stored_user():
-    init_db()
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT name FROM users ORDER BY id DESC LIMIT 1")
-    row = c.fetchone()
-    conn.close()
-    return row[0] if row and row[0] else None
-
-def save_user(name):
-    init_db()
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("DELETE FROM users")
-    c.execute("INSERT INTO users (name) VALUES (?)", (name.strip(),))
-    conn.commit()
-    conn.close()
-
-def reset_user():
-    init_db()
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("DELETE FROM users")
-    conn.commit()
-    conn.close()
-
-# Initialize session state from SQLite database
-if "user_name" not in st.session_state:
-    st.session_state.user_name = get_stored_user()
 
 # ==========================================
 # PAGE CONFIGURATION
@@ -79,6 +30,17 @@ bg_base64 = get_base64_img("background.png")
 # ==========================================
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
+
+with st.sidebar:
+    st.markdown("<p style='font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;'>Workspace Theme</p>", unsafe_allow_html=True)
+    theme_choice = st.radio(
+        "Display Mode",
+        ["Light Glass", "Dark Glass"],
+        index=0 if st.session_state.theme_mode == "Light" else 1,
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+    st.session_state.theme_mode = "Light" if "Light" in theme_choice else "Dark"
 
 is_dark = st.session_state.theme_mode == "Dark"
 
@@ -138,7 +100,7 @@ st.markdown(f"""
     
     header {{visibility: hidden;}}
     
-    /* Preserve Streamlit Material Icon ligatures */
+    /* Preserve Streamlit Material Icon ligatures so 'upload' does not render as text */
     span[data-testid="stIconMaterial"], 
     i, 
     [data-testid="stIconMaterial"],
@@ -155,10 +117,6 @@ st.markdown(f"""
         backdrop-filter: blur(28px) saturate(190%) !important;
         -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
         border-right: 1px solid {glass_border} !important;
-    }}
-    section[data-testid="stSidebar"] * {{
-        color: {text_primary};
-        font-family: 'Plus Jakarta Sans', sans-serif;
     }}
     section[data-testid="stSidebar"] p, 
     section[data-testid="stSidebar"] span:not([data-testid="stIconMaterial"]), 
@@ -208,36 +166,6 @@ st.markdown(f"""
         margin-bottom: 18px;
     }}
 
-    /* Onboarding Card Style */
-    .onboarding-card {{
-        background: {glass_card_bg};
-        backdrop-filter: blur(32px) saturate(200%);
-        -webkit-backdrop-filter: blur(32px) saturate(200%);
-        border: 1px solid {glass_border};
-        border-radius: 28px;
-        padding: 40px;
-        box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.1), inset 0 1px 2px {glass_highlight};
-        max-width: 520px;
-        margin: 60px auto 0 auto;
-        text-align: center;
-    }}
-
-    /* Input Field Styling */
-    .stTextInput input {{
-        background: {input_bg} !important;
-        border: 1px solid {input_border} !important;
-        border-radius: 14px !important;
-        padding: 12px 16px !important;
-        color: {text_primary} !important;
-        font-size: 15px !important;
-        font-weight: 500 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }}
-    .stTextInput input:focus {{
-        border-color: rgba(255, 101, 132, 0.8) !important;
-        box-shadow: 0 0 0 2px rgba(255, 101, 132, 0.2) !important;
-    }}
-
     /* FILE UPLOADER CLEANUP */
     div[data-testid="stFileUploader"] {{
         background: {input_bg} !important;
@@ -260,6 +188,11 @@ st.markdown(f"""
         font-size: 13px !important;
         font-weight: 600 !important;
         box-shadow: none !important;
+    }}
+    div[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"]:hover,
+    div[data-testid="stFileUploader"] button:hover {{
+        background: {btn_glass} !important;
+        border-color: {glass_border} !important;
     }}
     
     /* Modern Glass Table Styling */
@@ -368,42 +301,6 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# STEP 1: ONBOARDING / LOGIN FLOW (FIRST VISIT)
-# ==========================================
-if not st.session_state.user_name:
-    # Minimalist glass onboarding card
-    st.markdown(f"""
-    <div class="onboarding-card">
-        <div style='display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 18px; background: rgba(255, 101, 132, 0.12); color: #FF6584; font-size: 26px; margin-bottom: 18px;'>
-            🏢
-        </div>
-        <h2 style='font-size: 26px; font-weight: 800; color: {text_primary}; margin: 0 0 6px 0; letter-spacing: -0.5px;'>
-            Welcome to OptiCore
-        </h2>
-        <p style='font-size: 14px; color: {text_secondary}; margin: 0 0 28px 0; line-height: 1.5;'>
-            Workforce & SaaS Intelligence Platform.<br>Enter your name to personalize your executive optimization dashboard.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col_l, col_center, col_r = st.columns([1, 1.2, 1])
-    with col_center:
-        with st.form("onboarding_form", clear_on_submit=False):
-            name_input = st.text_input("Your Name", placeholder="e.g. Kristin Watson", label_visibility="collapsed")
-            submit_btn = st.form_submit_button("Enter Dashboard ✨", use_container_width=True)
-            
-            if submit_btn:
-                if name_input.strip():
-                    save_user(name_input.strip())
-                    st.session_state.user_name = name_input.strip()
-                    st.rerun()
-                else:
-                    st.warning("Please enter your name to proceed.")
-
-    # Stop rendering the main dashboard until user completes onboarding
-    st.stop()
-
-# ==========================================
 # BUSINESS LOGIC & DATA GENERATOR
 # ==========================================
 def generate_sample_data(num_rows=2500):
@@ -484,59 +381,17 @@ if 'raw_data' not in st.session_state:
     st.session_state['raw_data'] = generate_sample_data(1500)
 
 # ==========================================
-# SIDEBAR CONTROLS & SETTINGS
+# SIDEBAR CONTROLS
 # ==========================================
 with st.sidebar:
     st.markdown(f"""
-    <div style='margin-bottom: 18px;'>
+    <div style='margin-bottom: 20px;'>
         <h2 style='margin:0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color:{text_primary};'>OptiCore Platform</h2>
         <p style='font-size: 12.5px; color: {text_secondary}; margin-top: 3px; font-weight: 500;'>Workforce & SaaS Intelligence</p>
     </div>
     """, unsafe_allow_html=True)
-
-    # User Profile Widget
-    st.markdown(f"""
-    <div style='background: {input_bg}; border: 1px solid {glass_border}; border-radius: 16px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;'>
-        <div>
-            <div style='font-size: 10px; font-weight: 700; text-transform: uppercase; color: {text_secondary}; letter-spacing: 0.8px;'>Signed In As</div>
-            <div style='font-size: 15px; font-weight: 700; color: {text_primary}; margin-top: 2px;'>{st.session_state.user_name}</div>
-        </div>
-        <span style='font-size: 20px;'>👤</span>
-    </div>
-    """, unsafe_allow_html=True)
     
-    # Profile & Settings Expander
-    with st.expander("⚙️ Profile & Display Settings"):
-        st.markdown("<p style='font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;'>Theme Mode</p>", unsafe_allow_html=True)
-        theme_choice = st.radio(
-            "Display Mode",
-            ["Light Glass", "Dark Glass"],
-            index=0 if st.session_state.theme_mode == "Light" else 1,
-            horizontal=True,
-            label_visibility="collapsed",
-            key="theme_radio_select"
-        )
-        if ("Light" in theme_choice and st.session_state.theme_mode != "Light") or ("Dark" in theme_choice and st.session_state.theme_mode != "Dark"):
-            st.session_state.theme_mode = "Light" if "Light" in theme_choice else "Dark"
-            st.rerun()
-            
-        st.divider()
-        st.markdown("<p style='font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;'>Edit Display Name</p>", unsafe_allow_html=True)
-        edited_name = st.text_input("Name", value=st.session_state.user_name, label_visibility="collapsed", key="edit_name_box")
-        if st.button("Save Name"):
-            if edited_name.strip():
-                save_user(edited_name.strip())
-                st.session_state.user_name = edited_name.strip()
-                st.success("Profile name updated!")
-                time.sleep(0.3)
-                st.rerun()
-
-        if st.button("Switch Account / Log Out"):
-            reset_user()
-            st.session_state.user_name = None
-            st.rerun()
-
-    st.markdown(f"<p style='font-weight: 700; font-size: 11px; margin-bottom: 6px; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px;'>Workforce Data</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-weight: 700; font-size: 11px; margin-bottom: 6px; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.8px;'>Workforce Data</p>", unsafe_allow_html=True)
     
     if st.button("Generate Logs"):
         with st.spinner("Processing logs..."):
@@ -555,22 +410,22 @@ with st.sidebar:
     seat_cost = st.slider("License Cost / Seat ($)", min_value=10, max_value=500, value=100, step=10)
     
     st.divider()
-    st.markdown(f"<p style='font-size: 11px; color: {text_secondary}; text-align: center; font-weight: 600;'>Enterprise Engine v3.2</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size: 11px; color: {text_secondary}; text-align: center; font-weight: 600;'>Enterprise Engine v3.1</p>", unsafe_allow_html=True)
 
 # ==========================================
-# MAIN DASHBOARD (PERSONALIZED WELCOME)
+# MAIN DASHBOARD
 # ==========================================
 
 # Run Data Pipeline
 results_df, total_emps, seats_cancelled, total_savings = process_pipeline(st.session_state['raw_data'], seat_cost, cut_threshold)
 
-# Header Row with Personalized Name
+# Header Row
 head_left, head_right = st.columns([3, 1])
 with head_left:
     st.markdown(f"""
     <div style='margin-bottom: 20px;'>
-        <h1 style='font-size: 28px; font-weight: 800; color: {text_primary}; margin: 0; letter-spacing: -0.6px;'>Welcome, {st.session_state.user_name}</h1>
-        <p style='font-size: 13.5px; color: {text_secondary}; margin-top: 4px;'>Your executive license optimization overview & departmental velocity</p>
+        <h1 style='font-size: 28px; font-weight: 800; color: {text_primary}; margin: 0; letter-spacing: -0.6px;'>Workforce Optimization Overview</h1>
+        <p style='font-size: 13.5px; color: {text_secondary}; margin-top: 4px;'>Automated license reclamation analysis & departmental velocity</p>
     </div>
     """, unsafe_allow_html=True)
 with head_right:
